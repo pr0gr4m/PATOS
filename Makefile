@@ -7,11 +7,15 @@ LD = arm-linux-gnu-ld
 OC = arm-linux-gnu-objcopy
 
 LINKER_SCRIPT = ./patos.ld
+MAP_FILE = build/patos.map
 
 ASM_SRCS = $(wildcard boot/*.S)
-ASM_OBJS = $(patsubst boot/%.S, build/%.o, $(ASM_SRCS))
+ASM_OBJS = $(patsubst boot/%.S, build/%.os, $(ASM_SRCS))
 
-INC_DIRS = include
+C_SRCS = $(wildcard boot/*.c)
+C_OBJS = $(patsubst boot/%.c, build/%.o, $(C_SRCS))
+
+INC_DIRS = -I include
 
 patos = build/patos.axf
 patos_bin = build/patos.bin
@@ -21,7 +25,7 @@ patos_bin = build/patos.bin
 all: $(patos)
 
 clean:
-	@rm -fr build
+	@rm -rf build
 
 run: $(patos)
 	qemu-system-arm -M realview-pb-a8 -kernel $(patos)
@@ -32,10 +36,14 @@ debug: $(patos)
 gdb:
 	arm-none-eabi-gdb
 
-$(patos): $(ASM_OBJS) $(LINKER_SCRIPT)
-	$(LD) -n -T $(LINKER_SCRIPT) -o $(patos) $(ASM_OBJS)
+$(patos): $(ASM_OBJS) $(C_OBJS) $(LINKER_SCRIPT)
+	$(LD) -n -T $(LINKER_SCRIPT) -o $(patos) $(ASM_OBJS) $(C_OBJS) -Map=$(MAP_FILE)
 	$(OC) -O binary $(patos) $(patos_bin)
 
-build/%.o: boot/%.S
+build/%.os: $(ASM_SRCS)
 	mkdir -p $(shell dirname $@)
-	$(CC) -march=$(ARCH) -mcpu=$(MCPU) -I $(INC_DIRS) -c -g -o $@ $<
+	$(CC) -march=$(ARCH) -mcpu=$(MCPU) $(INC_DIRS) -c -g -o $@ $<
+
+build/%.o: $(C_SRCS)
+	mkdir -p $(shell dirname $@)
+	$(CC) -march=$(ARCH) -mcpu=$(MCPU) $(INC_DIRS) -c -g -o $@ $<
