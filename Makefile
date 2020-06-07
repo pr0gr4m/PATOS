@@ -11,6 +11,8 @@ LINKER_SCRIPT = ./patos.ld
 ASM_SRCS = $(wildcard boot/*.S)
 ASM_OBJS = $(patsubst boot/%.S, build/%.o, $(ASM_SRCS))
 
+INC_DIRS = include
+
 patos = build/patos.axf
 patos_bin = build/patos.bin
 
@@ -36,4 +38,4 @@ $(patos): $(ASM_OBJS) $(LINKER_SCRIPT)
 
 build/%.o: boot/%.S
 	mkdir -p $(shell dirname $@)
-	$(AS) -march=$(ARCH) -mcpu=$(MCPU) -g -o $@ $<
+	$(CC) -march=$(ARCH) -mcpu=$(MCPU) -I $(INC_DIRS) -c -g -o $@ $<
