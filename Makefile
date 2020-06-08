@@ -3,10 +3,10 @@ MCPU = cortex-a8
 
 TARGET = rvpb
 
-CC = arm-linux-gnu-gcc
-AS = arm-linux-gnu-as
-LD = arm-linux-gnu-ld
-OC = arm-linux-gnu-objcopy
+CC = arm-none-eabi-gcc
+AS = arm-none-eabi-as
+LD = arm-none-eabi-gcc
+OC = arm-none-eabi-objcopy
 
 LINKER_SCRIPT = ./patos.ld
 MAP_FILE = build/patos.map
@@ -28,7 +28,8 @@ INC_DIRS = -I include		\
 	-I hal/$(TARGET)	\
 	-I lib
 
-CFLAGS = -c -g -std=c11
+CFLAGS = -c -g -std=c11 -mthumb-interwork
+LDFLAGS = -nostartfiles -nostdlib -nodefaultlibs -static -lgcc
 
 patos = build/patos.axf
 patos_bin = build/patos.bin
@@ -49,8 +50,11 @@ debug: $(patos)
 gdb:
 	arm-none-eabi-gdb
 
+kill:
+	kill -9 `ps aux | grep 'qemu' | awk 'NR==1{print $$2}'`
+
 $(patos): $(ASM_OBJS) $(C_OBJS) $(LINKER_SCRIPT)
-	$(LD) -n -T $(LINKER_SCRIPT) -o $(patos) $(ASM_OBJS) $(C_OBJS) -Map=$(MAP_FILE)
+	$(LD) -n -T $(LINKER_SCRIPT) -o $(patos) $(ASM_OBJS) $(C_OBJS) -Wl,-Map=$(MAP_FILE) $(LDFLAGS)
 	$(OC) -O binary $(patos) $(patos_bin)
 
 build/%.os: %.S

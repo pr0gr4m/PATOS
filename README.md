@@ -11,7 +11,7 @@ $make all
 Requirements
 =====
 ```
-$ dnf install gcc-arm-linux-gnu
+$ dnf install arm-none-eabi-gcc
 $ dnf install qemu-system-arm
 $ dnf copr enable sailer/axide
 $ dnf update

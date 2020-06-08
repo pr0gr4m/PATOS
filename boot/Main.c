@@ -3,6 +3,7 @@
 #include "stdio.h"
 
 static void hw_init(void);
+static void printf_test(void);
 
 void main(void)
 {
@@ -15,6 +16,8 @@ void main(void)
 	hal_uart_put_char('\n');
 	putstr("Hello World!\n");
 
+	printf_test();
+
 	i = 100;
 	while (i--) {
 		uint8_t ch = hal_uart_get_char();
@@ -25,4 +28,18 @@ void main(void)
 static void hw_init(void)
 {
 	hal_uart_init();
+}
+
+static void printf_test(void)
+{
+	char *str = "test string";
+	char *nullptr = 0;
+	uint32_t i = 10;
+
+	d_printf("%s\n", "Hello printf");
+	d_printf("str: [%s]\n", str);
+	d_printf("%s is null pointer\n", nullptr);
+	d_printf("%u = %u\n", i, 10);
+	d_printf("dec = %u, hex = %x\n", 0xff, 0xff);
+	d_printf("print 0 [%u]\n", 0);
 }
