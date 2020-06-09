@@ -18,15 +18,13 @@ void main(void)
 
 	printf_test();
 
-	i = 100;
-	while (i--) {
-		uint8_t ch = hal_uart_get_char();
-		hal_uart_put_char(ch);
-	}
+	while (true);
 }
 
 static void hw_init(void)
 {
+	// init interrupt -> init uart
+	hal_interrupt_init();
 	hal_uart_init();
 }
 
