@@ -20,10 +20,10 @@
 		reset_handler_addr:		.word reset_handler
 		undef_handler_addr:		.word dummy_handler
 		svc_handler_addr:		.word dummy_handler
-		pftch_abt_handler_addr:	.word dummy_handler
-		data_abt_handler_addr:	.word dummy_handler
-		irq_handler_addr:		.word dummy_handler
-		fiq_handler_addr:		.word dummy_handler
+		pftch_abt_handler_addr:		.word dummy_handler
+		data_abt_handler_addr:		.word dummy_handler
+		irq_handler_addr:		.word irq_handler
+		fiq_handler_addr:		.word fiq_handler
 	vector_end:
 
 	reset_handler:

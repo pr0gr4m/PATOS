@@ -1,5 +1,7 @@
 #include "stdint.h"
+#include "stdbool.h"
 #include "HALUART.h"
+#include "HALInterrupt.h"
 #include "stdio.h"
 
 static void hw_init(void);
