@@ -5,7 +5,7 @@ RTOS for ARMv7
 Build
 =======
 ```
-$make all
+$ make all
 ```
 
 Requirements
