@@ -7,8 +7,14 @@
 #include "stdlib.h"
 
 static void hw_init(void);
+static void kernel_init(void);
+
 static void printf_test(void);
 static void timer_test(void);
+
+void user_task0(void);
+void user_task1(void);
+void user_task2(void);
 
 void main(void)
 {
@@ -35,6 +41,25 @@ static void hw_init(void)
 	hal_timer_init();
 }
 
+static void kernel_init(void)
+{
+	uint32_t taskid;
+
+	kernel_task_init();
+	
+	taskid = kernel_task_create(user_task0);
+	if (taskid == NOT_ENOUGH_TASK_NUM)
+		putstr("Failed to create task0\n");
+
+	taskid = kernel_task_create(user_task1);
+	if (taskid == NOT_ENOUGH_TASK_NUM)
+		putstr("Failed to create task1\n");
+
+	taskid = kernel_task_create(user_task2);
+	if (taskid == NOT_ENOUGH_TASK_NUM)
+		putstr("Failed to create task2\n");
+}
+
 static void printf_test(void)
 {
 	char *str = "test string";
@@ -57,4 +82,22 @@ static void timer_test(void)
 		d_printf("current count : %u\n", hal_timer_get_1ms_counter());
 		delay(1000);
 	}
+}
+
+void user_task0(void)
+{
+	d_printf("User Task #0\n");
+	while (true);
+}
+
+void user_task1(void)
+{
+	d_printf("User Task #1\n");
+	while (true);
+}
+
+void user_task2(void)
+{
+	d_printf("User Task #2\n");
+	while (true);
 }
