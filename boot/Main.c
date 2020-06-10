@@ -5,6 +5,7 @@
 #include "HALTimer.h"
 #include "stdio.h"
 #include "stdlib.h"
+#include "kernel.h"
 
 static void hw_init(void);
 static void kernel_init(void);
@@ -29,6 +30,8 @@ void main(void)
 
 	printf_test();
 	timer_test();
+
+	kernel_init();
 
 	while (true);
 }
@@ -58,6 +61,8 @@ static void kernel_init(void)
 	taskid = kernel_task_create(user_task2);
 	if (taskid == NOT_ENOUGH_TASK_NUM)
 		putstr("Failed to create task2\n");
+
+	kernel_start();
 }
 
 static void printf_test(void)
@@ -78,7 +83,7 @@ static void printf_test(void)
 
 static void timer_test(void)
 {
-	while (true) {
+	for (uint32_t i = 0; i < 3; i++) {
 		d_printf("current count : %u\n", hal_timer_get_1ms_counter());
 		delay(1000);
 	}
@@ -86,18 +91,27 @@ static void timer_test(void)
 
 void user_task0(void)
 {
-	d_printf("User Task #0\n");
-	while (true);
+	uint32_t local = 0;
+	while (true) {
+		d_printf("User Task #0 SP = 0x%x\n", &local);
+		kernel_yield();
+	}
 }
 
 void user_task1(void)
 {
-	d_printf("User Task #1\n");
-	while (true);
+	uint32_t local = 0;
+	while (true) {
+		d_printf("User Task #1 SP = 0x%x\n", &local);
+		kernel_yield();
+	}
 }
 
 void user_task2(void)
 {
-	d_printf("User Task #2\n");
-	while (true);
+	uint32_t local = 0;
+	while (true) {
+		d_printf("User Task #2 SP = 0x%x\n", &local);
+		kernel_yield();
+	}
 }

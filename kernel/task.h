@@ -25,6 +25,9 @@ typedef void (* kerneltask_func_t)(void);
 
 void kernel_task_init(void);
 uint32_t kernel_task_create(kerneltask_func_t start_func);
+void kernel_task_start(void);
+void kernel_task_sched(void);
+void kernel_task_context_switch(void);
 
 
 #endif
