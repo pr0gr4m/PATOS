@@ -4,11 +4,14 @@
 #include "task.h"
 
 static kerneltcb_t task_list[MAX_TASK_NUM];
-static uint32_t allocated_tcb_index;
+static uint32_t alloc_tcb_index;
+static uint32_t cur_tcb_index;
+
+static kerneltcb_t *sched_rr(void);
 
 void kernel_task_init(void)
 {
-	allocated_tcb_index = 0;
+	alloc_tcb_index = 0;
 
 	for (uint32_t i = 0; i < MAX_TASK_NUM; i++) {
 		task_list[i].stack_base = (uint8_t *)(TASK_STACK_START +
@@ -25,11 +28,19 @@ void kernel_task_init(void)
 
 uint32_t kernel_task_create(kerneltask_func_t start_func)
 {
-	kerneltcb_t *new_tcb = &task_list[allocated_tcb_index++];
-	if (allocated_tcb_index > MAX_TASK_NUM)
+	kerneltcb_t *new_tcb = &task_list[alloc_tcb_index++];
+	if (alloc_tcb_index > MAX_TASK_NUM)
 		return NOT_ENOUGH_TASK_NUM;
 
 	kerneltask_context_t *ctx = (kerneltask_context_t *)new_tcb->sp;
 	ctx->pc = (uint32_t)start_func;
-	return allocated_tcb_index - 1;
+	return alloc_tcb_index - 1;
+}
+
+static kerneltcb_t *sched_rr(void)
+{
+	cur_tcb_index++;
+	cur_tcb_index %= alloc_tcb_index;
+
+	return &task_list[cur_tcb_index];
 }
