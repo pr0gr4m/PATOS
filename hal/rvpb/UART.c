@@ -2,6 +2,7 @@
 #include "UART.h"
 #include "HALUART.h"
 #include "HALInterrupt.h"
+#include "kernel.h"
 
 extern volatile PL011_t *UART;
 
@@ -50,4 +51,6 @@ static void interrupt_handler(void)
 {
 	uint8_t ch = hal_uart_get_char();
 	hal_uart_put_char(ch);
+
+	kernel_send_events(kernelevent_flag_uartin);
 }

@@ -49,6 +49,7 @@ static void kernel_init(void)
 	uint32_t taskid;
 
 	kernel_task_init();
+	kernel_event_flag_init();
 	
 	taskid = kernel_task_create(user_task0);
 	if (taskid == NOT_ENOUGH_TASK_NUM)
@@ -92,8 +93,14 @@ static void timer_test(void)
 void user_task0(void)
 {
 	uint32_t local = 0;
+	d_printf("User Task #0 SP = 0x%x\n", &local);
 	while (true) {
-		d_printf("User Task #0 SP = 0x%x\n", &local);
+		kernelevent_flag_t handle_event = kernel_wait_events(kernelevent_flag_uartin);
+		switch (handle_event) {
+			case kernelevent_flag_uartin:
+				d_printf("\nUART IN Event handled\n");
+				break;
+		}
 		kernel_yield();
 	}
 }
@@ -101,8 +108,8 @@ void user_task0(void)
 void user_task1(void)
 {
 	uint32_t local = 0;
+	d_printf("User Task #1 SP = 0x%x\n", &local);
 	while (true) {
-		d_printf("User Task #1 SP = 0x%x\n", &local);
 		kernel_yield();
 	}
 }
@@ -110,8 +117,8 @@ void user_task1(void)
 void user_task2(void)
 {
 	uint32_t local = 0;
+	d_printf("User Task #2 SP = 0x%x\n", &local);
 	while (true) {
-		d_printf("User Task #2 SP = 0x%x\n", &local);
 		kernel_yield();
 	}
 }
