@@ -93,6 +93,9 @@ static void timer_test(void)
 void user_task0(void)
 {
 	uint32_t local = 0;
+	uint8_t cmdbuf[16];
+	uint32_t cmdbufidx = 0;
+	uint8_t uartch = 0;
 	d_printf("User Task #0 SP = 0x%x\n", &local);
 	while (true) {
 		bool pending_event = true;
@@ -100,11 +103,29 @@ void user_task0(void)
 			kernelevent_flag_t handle_event = kernel_wait_events(kernelevent_flag_uartin | kernelevent_flag_cmdout);
 			switch (handle_event) {
 				case kernelevent_flag_uartin:
-					d_printf("\nUART In Event handled\n");
-					kernel_send_events(kernelevent_flag_cmdin);
+					kernel_recv_msg(kernelmq_task0, &uartch, 1);
+					if (uartch == '\r') {
+						cmdbuf[cmdbufidx] = '\0';
+						while (true) {
+							kernel_send_events(kernelevent_flag_cmdin);
+							if (kernel_send_msg(kernelmq_task1, &cmdbufidx, 1) == false) {
+								kernel_yield();
+							} else if (kernel_send_msg(kernelmq_task1, cmdbuf, cmdbufidx) == false) {
+								uint8_t rollback;
+								kernel_recv_msg(kernelmq_task1, &rollback, 1);
+								kernel_yield();
+							} else {
+								break;
+							}
+						}
+						cmdbufidx = 0;
+					} else {
+						cmdbuf[cmdbufidx++] = uartch;
+						cmdbufidx %= 16;
+					}
 					break;
 				case kernelevent_flag_cmdout:
-					d_printf("\nCmdOut Event handled\n");
+					d_printf("\nCmdOut Event handled by task 0\n");
 					break;
 				default:
 					pending_event = false;
@@ -118,12 +139,17 @@ void user_task0(void)
 void user_task1(void)
 {
 	uint32_t local = 0;
+	uint8_t cmdlen = 0;
+	uint8_t cmd[16] = { 0, };
 	d_printf("User Task #1 SP = 0x%x\n", &local);
 	while (true) {
 		kernelevent_flag_t handle_event = kernel_wait_events(kernelevent_flag_cmdin);
 		switch (handle_event) {
 			case kernelevent_flag_cmdin:
-				d_printf("\nCmdIn Event handled\n");
+				memclr(cmd, 16);
+				kernel_recv_msg(kernelmq_task1, &cmdlen, 1);
+				kernel_recv_msg(kernelmq_task1, cmd, cmdlen);
+				d_printf("\nrecv cmd: [%s]\n", cmd);
 				break;
 		}
 		kernel_yield();
