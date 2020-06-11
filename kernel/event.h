@@ -7,7 +7,7 @@ typedef enum kernelevent_flag_t
 {
 	kernelevent_flag_uartin		= 0x00000001,
 	kernelevent_flag_cmdin		= 0x00000002,
-	kernelevent_flag_reserved02	= 0x00000004,
+	kernelevent_flag_cmdout		= 0x00000004,
 	kernelevent_flag_reserved03	= 0x00000008,
 	kernelevent_flag_reserved04	= 0x00000010,
 	kernelevent_flag_reserved05	= 0x00000020,
