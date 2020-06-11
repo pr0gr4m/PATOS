@@ -99,6 +99,7 @@ void user_task0(void)
 		switch (handle_event) {
 			case kernelevent_flag_uartin:
 				d_printf("\nUART IN Event handled\n");
+				kernel_send_events(kernelevent_flag_cmdin);
 				break;
 		}
 		kernel_yield();
@@ -110,6 +111,12 @@ void user_task1(void)
 	uint32_t local = 0;
 	d_printf("User Task #1 SP = 0x%x\n", &local);
 	while (true) {
+		kernelevent_flag_t handle_event = kernel_wait_events(kernelevent_flag_cmdin);
+		switch (handle_event) {
+			case kernelevent_flag_cmdin:
+				d_printf("\nCMD IN Event handled\n");
+				break;
+		}
 		kernel_yield();
 	}
 }
