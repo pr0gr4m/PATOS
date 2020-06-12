@@ -28,6 +28,6 @@ uint32_t kernel_task_create(kerneltask_func_t start_func);
 void kernel_task_start(void);
 void kernel_task_sched(void);
 void kernel_task_context_switch(void);
-
+uint32_t kernel_get_current_task_id(void);
 
 #endif

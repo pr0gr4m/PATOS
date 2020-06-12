@@ -14,5 +14,7 @@ bool kernel_send_msg(kernelmq_t qname, void *data, uint32_t count);
 uint32_t kernel_recv_msg(kernelmq_t qname, void *data, uint32_t count);
 void kernel_lock_sem(void);
 void kernel_unlock_sem(void);
+void kernel_lock_mutex(void);
+void kernel_unlock_mutex(void);
 
 #endif

@@ -51,11 +51,13 @@ static void interrupt_handler(void)
 {
 	uint8_t ch = hal_uart_get_char();
 
-	if (ch != 'x') {
+	if (ch == 'u') {
+		kernel_send_events(kernelevent_flag_unlock);
+	} else if (ch == 'x') {
+		kernel_send_events(kernelevent_flag_cmdout);
+	} else {
 		hal_uart_put_char(ch);
 		kernel_send_msg(kernelmq_task0, &ch, 1);
 		kernel_send_events(kernelevent_flag_uartin);
-	} else {
-		kernel_send_events(kernelevent_flag_cmdout);
 	}
 }

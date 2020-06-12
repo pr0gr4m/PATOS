@@ -96,13 +96,21 @@ static void timer_test(void)
 static uint32_t shared_value;
 static void critical_section_test(uint32_t p, uint32_t taskid)
 {
+#ifdef SEM_TEST
 	kernel_lock_sem();
+#else
+	kernel_lock_mutex();
+#endif
 	d_printf("User Task #%u Send = %u\n", taskid, p);
 	shared_value = p;
 	kernel_yield();
 	delay(1000);
 	d_printf("User Task #%u Shared Value = %u\n", taskid, shared_value);
+#ifdef SEM_TEST
 	kernel_unlock_sem();
+#else
+	kernel_unlock_mutex();
+#endif
 }
 
 void user_task0(void)
@@ -159,13 +167,15 @@ void user_task1(void)
 	uint8_t cmd[16] = { 0, };
 	d_printf("User Task #1 SP = 0x%x\n", &local);
 	while (true) {
-		kernelevent_flag_t handle_event = kernel_wait_events(kernelevent_flag_cmdin);
+		kernelevent_flag_t handle_event = kernel_wait_events(kernelevent_flag_cmdin | kernelevent_flag_unlock);
 		switch (handle_event) {
 			case kernelevent_flag_cmdin:
 				memclr(cmd, 16);
 				kernel_recv_msg(kernelmq_task1, &cmdlen, 1);
 				kernel_recv_msg(kernelmq_task1, cmd, cmdlen);
 				d_printf("\nrecv cmd: [%s]\n", cmd);
+				break;
+			case kernelevent_flag_unlock:
 				break;
 		}
 		kernel_yield();

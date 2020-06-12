@@ -74,3 +74,21 @@ void kernel_unlock_sem(void)
 {
 	kernel_sem_release();
 }
+
+void kernel_lock_mutex(void)
+{
+	while (true) {
+		uint32_t current_task_id = kernel_get_current_task_id();
+		if (kernel_mutex_lock(current_task_id) == false)
+			kernel_yield();
+		else
+			break;
+	}
+}
+
+void kernel_unlock_mutex(void)
+{
+	uint32_t current_task_id = kernel_get_current_task_id();
+	if (kernel_mutex_unlock(current_task_id) == false)
+		kernel_yield();
+}
