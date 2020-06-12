@@ -12,6 +12,7 @@ static void kernel_init(void);
 
 static void printf_test(void);
 static void timer_test(void);
+static void critical_section_test(uint32_t p, uint32_t taskid);
 
 void user_task0(void);
 void user_task1(void);
@@ -50,6 +51,8 @@ static void kernel_init(void)
 
 	kernel_task_init();
 	kernel_event_flag_init();
+	kernel_mq_init();
+	kernel_sem_init(1);
 	
 	taskid = kernel_task_create(user_task0);
 	if (taskid == NOT_ENOUGH_TASK_NUM)
@@ -90,6 +93,18 @@ static void timer_test(void)
 	}
 }
 
+static uint32_t shared_value;
+static void critical_section_test(uint32_t p, uint32_t taskid)
+{
+	kernel_lock_sem();
+	d_printf("User Task #%u Send = %u\n", taskid, p);
+	shared_value = p;
+	kernel_yield();
+	delay(1000);
+	d_printf("User Task #%u Shared Value = %u\n", taskid, shared_value);
+	kernel_unlock_sem();
+}
+
 void user_task0(void)
 {
 	uint32_t local = 0;
@@ -125,7 +140,8 @@ void user_task0(void)
 					}
 					break;
 				case kernelevent_flag_cmdout:
-					d_printf("\nCmdOut Event handled by task 0\n");
+					//d_printf("\nCmdOut Event handled by task 0\n");
+					critical_section_test(5, 0);
 					break;
 				default:
 					pending_event = false;
@@ -161,6 +177,7 @@ void user_task2(void)
 	uint32_t local = 0;
 	d_printf("User Task #2 SP = 0x%x\n", &local);
 	while (true) {
+		critical_section_test(3, 2);
 		kernel_yield();
 	}
 }

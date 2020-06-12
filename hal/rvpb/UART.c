@@ -50,8 +50,12 @@ uint8_t hal_uart_get_char(void)
 static void interrupt_handler(void)
 {
 	uint8_t ch = hal_uart_get_char();
-	hal_uart_put_char(ch);
 
-	kernel_send_msg(kernelmq_task0, &ch, 1);
-	kernel_send_events(kernelevent_flag_uartin);
+	if (ch != 'x') {
+		hal_uart_put_char(ch);
+		kernel_send_msg(kernelmq_task0, &ch, 1);
+		kernel_send_events(kernelevent_flag_uartin);
+	} else {
+		kernel_send_events(kernelevent_flag_cmdout);
+	}
 }
